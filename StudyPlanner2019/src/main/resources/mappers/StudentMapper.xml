@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="green.mapper.StudentMapper">
+
+
+<select id="selectList" resultType="vo.StudentVO" > <!-- 이거 지금 사용 X -->
+	SELECT * FROM student
+</select>
+
+<select id="selectDetail" resultType="vo.StudentVO"> <!-- 회원 정보 조회 쿼리 -->
+	SELECT * FROM student WHERE id=#{id}
+</select>
+
+<select id="selectSeq" resultType="vo.StudentVO"> <!-- 메일 보낼때 seq값 확인하기 -->
+	SELECT seq FROM student WHERE id=#{id}
+</select>
+
+<insert id="insertStudent" parameterType="vo.StudentVO"> <!-- 회원 가입 -->
+	INSERT INTO student VALUES(ROUND(dbms_random.value(1000,10000)), #{id}, #{password}, #{name}, #{lev})
+	<!-- ROUND(dbms_random.value(a,b)) : a와 b 사이의 랜덤한 정수 -->
+</insert>
+
+<update id="updateStudent"> <!-- 회원 정보 수정하기 -->
+	UPDATE student set password=#{password}, name=#{name}, lev=#{lev} WHERE id=#{id}
+</update>
+
+<update id="updateConfirm" parameterType="vo.StudentVO"> <!-- 메일 보내서 인증한 회원의 seq값을 1로 바꾸기 -->
+	UPDATE student set seq=1 WHERE id=#{id} and seq=#{seq}
+</update>
+
+<delete id="deleteStudent"> <!-- 수정해야함 당장은 안쓸것!(탈퇴때) -->
+	DELETE student WHERE id=#{id}
+</delete>
+
+<!-- [2nd row:left] 내용 추가-->
+<!-- 로그인 -->
+<select id="loginCheck" resultType="vo.StudentVO" >
+	SELECT * FROM student WHERE id=#{id} AND password=#{password}
+</select>
+
+<!-- 비밀번호 변경화면에서 사용하는 mapper -->
+<!-- 비밀번호를 찾을 아이디 검색 -->
+<select id="selectPassword" resultType="vo.StudentVO">
+	SELECT id FROM student WHERE id=#{id}
+</select>
+
+<!-- 임시비밀번호로 비번을 변경시켜주고 메시지 발송 -->
+<update id="updateTemPassword" parameterType="vo.StudentVO">
+	 update student set password=(SELECT DBMS_RANDOM.STRING('P', 10) STR FROM DUAL) where id=#{id}
+</update>
+
+<!-- 임시비밀번호가 정말로 변경되었는지 확인 -->
+<!-- selectAfterPW -->
+<select id="selectAfterPW" resultType="vo.StudentVO">
+	SELECT password FROM student WHERE id=#{id}
+</select>
+
+</mapper>

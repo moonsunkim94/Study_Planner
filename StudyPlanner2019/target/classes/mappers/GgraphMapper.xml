@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="green.mapper.GgraphMapper">
+
+<select id="selectList" resultType="vo.GgraphVO">
+	SELECT
+	TO_CHAR(seq) AS seq,
+	TO_CHAR(exam_date,'YYYY-MM-DD') AS exam_date,
+	exam_name, exam_subject, exam_grade
+	FROM ggraph 
+	WHERE graID=#{graID}
+	ORDER BY exam_date ASC
+</select>
+
+<select id="selectsubject" resultType="String"> <!-- 과목만 select -->
+	SELECT
+	DISTINCT exam_subject AS exam_subject
+	FROM ggraph 
+	WHERE graID=#{graID}
+</select>
+
+<select id="selectDetail" resultType="vo.GgraphVO">
+	SELECT * FROM ggraph WHERE seq=TO_NUMBER(#{seq})
+</select>
+
+<select id="selectgraph" resultType="vo.GgraphVO"> <!-- 과목/날짜 과거부터 정렬 -->
+	SELECT exam_name, TO_CHAR(exam_date,'YYYY-MM-DD') AS exam_date, exam_grade, exam_subject
+	FROM ggraph 
+	WHERE exam_subject=#{exam_subject} AND graID=#{graID} 
+	ORDER BY exam_date ASC
+</select>
+
+<insert id="insertGgraph"> <!-- ggraph_seq의 다음 수를 seq 에 넣어준다. -->
+	INSERT INTO ggraph VALUES(ggraph_seq.NEXTVAL, #{graID}, #{exam_name}, #{exam_date}, #{exam_subject}, #{exam_grade})
+</insert>
+
+<update id="updateGgraph">
+	UPDATE ggraph SET exam_name=#{exam_name}, exam_date=#{exam_date}, exam_subject=#{exam_subject} ,exam_grade=#{exam_grade}
+	WHERE seq=TO_NUMBER(#{seq})
+</update>
+
+<delete id="deleteGgraph">
+	DELETE ggraph 
+	WHERE seq=TO_NUMBER(#{seq})
+</delete>
+
+</mapper>
